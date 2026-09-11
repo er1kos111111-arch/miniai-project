@@ -45,6 +45,21 @@ def estimate_loss(model, get_batch, eval_iters=50, device="cpu"):
     return losses
 
 
+def save_checkpoint(path, model, config, step):
+    tmp_path = path + ".tmp"
+    torch.save(
+        {
+            "model": model.state_dict(),
+            "config": config.__dict__,
+            "step": step,
+        },
+        tmp_path,
+    )
+    if os.path.exists(path):
+        os.remove(path)
+    os.rename(tmp_path, path)
+
+
 def train():
     tc = TrainConfig()
     mc = ModelConfig(block_size=tc.block_size)
@@ -79,6 +94,7 @@ def train():
     print(f"Training for max {tc.max_steps} steps...")
     t0 = time.time()
     best_val_loss = float("inf")
+    best_ckpt_path = None
 
     for step in range(tc.max_steps):
         lr = tc.learning_rate
@@ -122,29 +138,19 @@ def train():
 
         if (step + 1) % tc.save_every == 0:
             ckpt_path = os.path.join(tc.checkpoint_dir, f"model_step{step+1}.pt")
-            torch.save(
-                {
-                    "model": model.state_dict(),
-                    "optimizer": optimizer.state_dict(),
-                    "step": step,
-                    "config": mc.__dict__,
-                    "train_config": tc.__dict__,
-                },
-                ckpt_path,
-            )
+            save_checkpoint(ckpt_path, model, mc, step + 1)
             print(f"Saved checkpoint: {ckpt_path}")
+            if best_ckpt_path and best_ckpt_path != ckpt_path:
+                if os.path.exists(best_ckpt_path):
+                    os.remove(best_ckpt_path)
+            best_ckpt_path = ckpt_path
+
+    for f in os.listdir(tc.checkpoint_dir):
+        if f.startswith("model_step") and f.endswith(".pt"):
+            os.remove(os.path.join(tc.checkpoint_dir, f))
 
     final_path = os.path.join(tc.checkpoint_dir, "model_final.pt")
-    torch.save(
-        {
-            "model": model.state_dict(),
-            "optimizer": optimizer.state_dict(),
-            "step": tc.max_steps,
-            "config": mc.__dict__,
-            "train_config": tc.__dict__,
-        },
-        final_path,
-    )
+    save_checkpoint(final_path, model, mc, tc.max_steps)
     print(f"\nTraining complete! Best val loss: {best_val_loss:.4f}")
     print(f"Final model saved: {final_path}")
 

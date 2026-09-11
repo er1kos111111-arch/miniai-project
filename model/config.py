@@ -26,7 +26,7 @@ class TrainConfig:
     weight_decay: float = 0.01
     warmup_steps: int = 100
     max_steps: int = 5000
-    save_every: int = 500
+    save_every: int = 1000
     block_size: int = 128
     grad_clip: float = 1.0
     seed: int = 42
