@@ -8,9 +8,9 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 class ModelConfig:
     vocab_size: int = 5000
     block_size: int = 128
-    n_layer: int = 34
-    n_head: int = 32
-    n_embd: int = 4096
+    n_layer: int = 12
+    n_head: int = 16
+    n_embd: int = 2048
     dropout: float = 0.1
     bias: bool = True
 
@@ -21,7 +21,7 @@ class ModelConfig:
 @dataclass
 class TrainConfig:
     epochs: int = 5
-    batch_size: int = 1
+    batch_size: int = 2
     learning_rate: float = 3e-4
     weight_decay: float = 0.01
     warmup_steps: int = 100
