@@ -34,18 +34,18 @@ def chat_fn(message, history, temperature, max_tokens):
     if not message.strip():
         return history, ""
 
-    system_prompt = ic.system_prompt
-    context_parts = [system_prompt, ""]
+    messages = []
     for user_msg, ai_msg in history:
-        context_parts.append(f"USER: {user_msg}")
+        messages.append({"role": "user", "content": user_msg})
         if ai_msg:
-            context_parts.append(f"ASSISTANT: {ai_msg}")
-    context_parts.append(f"USER: {message}")
-    context = "\n".join(context_parts)
+            messages.append({"role": "assistant", "content": ai_msg})
+    messages.append({"role": "user", "content": message})
 
     response = generate_response(
-        model, tokenizer, mc, context, device,
-        temperature=temperature, top_k=40, max_new_tokens=int(max_tokens)
+        model, tokenizer, mc, messages, device,
+        system_prompt=ic.system_prompt,
+        temperature=temperature,
+        max_new_tokens=int(max_tokens)
     )
 
     if not response:
@@ -70,7 +70,7 @@ def build_ui():
                     submit_btn = gr.Button("Отправить", variant="primary")
                     clear_btn = gr.Button("Очистить")
             with gr.Column(scale=1):
-                temperature = gr.Slider(0.1, 2.0, value=0.8, step=0.1, label="Temperature")
+                temperature = gr.Slider(0.1, 2.0, value=0.7, step=0.1, label="Temperature")
                 max_tokens = gr.Slider(10, 300, value=150, step=10, label="Max Tokens")
                 gr.Markdown("### Команды\n- `/reset` — очистить контекст\n- `/save` — сохранить чат\n- `/quit` — выйти")
 

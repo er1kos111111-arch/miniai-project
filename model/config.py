@@ -7,10 +7,10 @@ PROJECT_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 @dataclass
 class ModelConfig:
     vocab_size: int = 5000
-    block_size: int = 256
-    n_layer: int = 6
-    n_head: int = 6
-    n_embd: int = 384
+    block_size: int = 128
+    n_layer: int = 34
+    n_head: int = 32
+    n_embd: int = 4096
     dropout: float = 0.1
     bias: bool = True
 
@@ -21,17 +21,17 @@ class ModelConfig:
 @dataclass
 class TrainConfig:
     epochs: int = 5
-    batch_size: int = 8
+    batch_size: int = 1
     learning_rate: float = 3e-4
     weight_decay: float = 0.01
     warmup_steps: int = 100
-    max_steps: int = 2000
+    max_steps: int = 5000
     save_every: int = 500
-    block_size: int = 256
+    block_size: int = 128
     grad_clip: float = 1.0
     seed: int = 42
 
-    data_path: str = os.path.join(PROJECT_ROOT, "data", "train.txt")
+    data_path: str = os.path.join(PROJECT_ROOT, "data", "train.jsonl")
     prepared_path: str = os.path.join(PROJECT_ROOT, "data", "prepared.npz")
     tokenizer_path: str = os.path.join(PROJECT_ROOT, "data", "tokenizer.json")
     checkpoint_dir: str = os.path.join(PROJECT_ROOT, "checkpoints")
